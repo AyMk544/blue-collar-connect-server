@@ -936,7 +936,7 @@ export const getUserJoinedCommunityPosts = async (c: Context): Promise<Response>
   };
   
   
-  // Interface definitions
+  // Interfaces
   interface CommunityPost {
     communityId: string;
     id: string;
