@@ -15,6 +15,8 @@ communityRoutes.get("/posts",getCommunityPosts)
 communityRoutes.get('/joined-posts', getUserJoinedCommunityPosts);
 communityRoutes.get("/:id", getCommunityById)
 
+//branch main
+
 
 
 export default communityRoutes
