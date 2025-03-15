@@ -355,3 +355,27 @@ export const getUserProfileById = async (c: Context): Promise<Response> => {
     return c.json({ error: error.message || 'Error fetching profile' }, 500);
   }
 };
+
+export const getUserRole = async (c: Context): Promise<Response> => {
+  try {
+    const { userId } = await c.req.json();
+    if (!userId) {
+      return c.json({ error: 'Missing field: userId is required.' }, 400);
+    }
+
+    // Retrieve user details from Firebase Auth
+    const userRecord = await admin.auth().getUser(userId);
+    
+    // Get custom claims (where role is stored)
+    const role = userRecord.customClaims?.role;
+
+    if (!role) {
+      return c.json({ error: 'Role not found for this user.' }, 404);
+    }
+
+    return c.json({ role }, 200);
+  } catch (error: any) {
+    console.error('Error fetching user role:', error);
+    return c.json({ error: error.message || 'Internal server error' }, 500);
+  }
+};

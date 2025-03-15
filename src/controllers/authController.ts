@@ -85,3 +85,5 @@ export const signout = async (c: Context): Promise<Response> => {
     return c.json({ error: error.message || 'Internal server error' }, 500);
   }
 };
+
+
