@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Busboy from 'busboy';
 import { Readable } from 'stream';
 
+
 export const createWorkerCommunity = async (c: Context): Promise<Response> => {
     return new Promise<Response>(async (resolve) => {
       const contentType: string | undefined = c.req.header('content-type');
@@ -11,6 +12,7 @@ export const createWorkerCommunity = async (c: Context): Promise<Response> => {
         resolve(c.json({ error: 'Content-Type must be multipart/form-data' }, 400));
         return;
       }
+      console.log(contentType)
   
       // Generate a unique community ID
       const communityId = uuidv4();

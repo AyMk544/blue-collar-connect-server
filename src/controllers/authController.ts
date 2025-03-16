@@ -38,6 +38,7 @@ export const signup = async (c: Context): Promise<Response> => {
 export const signin = async (c: Context): Promise<Response> => {
   try {
     const authHeader = c.req.header('Authorization');
+    console.log(authHeader)
     if (!authHeader) {
       return c.json({ error: 'Authorization header missing' }, 401);
     }
