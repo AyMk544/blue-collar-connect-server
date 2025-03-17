@@ -781,6 +781,8 @@ export const createWorkerCommunity = async (c: Context): Promise<Response> => {
     });
   };
 
+  //get communityPosts
+
 export const getCommunityPosts = async (c: Context): Promise<Response> => {
   return new Promise<Response>(async (resolve) => {
     try {

@@ -3,6 +3,8 @@ import { authMiddleware,workerMiddleware } from '../middlewares/authMiddleware.j
 import { addCommentToPost, createCommunityPost, createWorkerCommunity, getAllCommunities, getCommunityById, getCommunityPost, getCommunityPosts, getUserCommunities, getUserJoinedCommunityPosts, joinWorkerCommunity, leaveWorkerCommunity, searchCommunityByName } from '../controllers/communitiesController.js'
 const communityRoutes = new Hono()
 
+
+//all community routes
 communityRoutes.use('*', authMiddleware)
 communityRoutes.post("/create-community", createWorkerCommunity)
 communityRoutes.post("/join", joinWorkerCommunity)
