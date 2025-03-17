@@ -14,7 +14,9 @@ configDotenv()
 
 app.use('/api/*',cors({
   origin: ['http://localhost:3000',
-    'https://3000-idx-blue-collar-connect-1741848905747.cluster-mwrgkbggpvbq6tvtviraw2knqg.cloudworkstations.dev'],
+    'https://3000-idx-blue-collar-connect-1741848905747.cluster-mwrgkbggpvbq6tvtviraw2knqg.cloudworkstations.dev',
+    'http://localhost:3001',
+  ],
   credentials: true,
 }))
 

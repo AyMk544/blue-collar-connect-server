@@ -700,8 +700,8 @@ export const createWorkerCommunity = async (c: Context): Promise<Response> => {
   
         try {
           // Validate required fields
-          const { communityId, title, content, author } = fields;
-          if (!communityId || !title || !content || !author) {
+          const { communityId, title, content, author,displayAuthor } = fields;
+          if (!communityId || !title || !content || !author || !displayAuthor) {
             resolve(c.json({ 
               error: 'Missing required fields: communityId, title, content, and author are required' 
             }, 400));
@@ -727,7 +727,7 @@ export const createWorkerCommunity = async (c: Context): Promise<Response> => {
           }
   
           const bucket = admin.storage().bucket();
-          let imageUrl: string | null = null;
+          let imageUrl: string|null=null
   
           // Process image if provided
           if (files.image) {
@@ -742,16 +742,16 @@ export const createWorkerCommunity = async (c: Context): Promise<Response> => {
   
           // Create post data
           const postData: CommunityPost = {
-            communityId,
+            communityId:communityId,
             id: postId,
-            title,
-            content,
-            author,
-            timeAgo: 'just now', // Client can calculate this dynamically
+            title:title,
+            content:content || "",
+            author:displayAuthor || "anonymous",
+            timeAgo: 'just now',
             likes: 0,
             dislikes: 0,
-            image: imageUrl,
-            comments: [], // Initialize empty comments array
+            image: imageUrl||"",
+            comments: [], 
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
           };
@@ -936,6 +936,109 @@ export const getUserJoinedCommunityPosts = async (c: Context): Promise<Response>
       }
     });
   };
+
+export const addCommentToPost = async (c: Context): Promise<Response> => {
+  return new Promise<Response>(async (resolve) => {
+    try {
+      // Ensure the Content-Type is application/json
+      const contentType = c.req.header('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        resolve(c.json({ error: 'Content-Type must be application/json' }, 400));
+        return;
+      }
+      
+      // Parse the JSON body
+      const body = await c.req.json();
+      const { userId, postId, content } = body;
+      
+      if (!userId || !postId || content === undefined) {
+        resolve(c.json({ error: 'userId, postId and content are required' }, 400));
+        return;
+      }
+      
+      // Reference the post document
+      const postRef = admin.firestore().collection('communityPosts').doc(postId);
+      const postDoc = await postRef.get();
+      
+      if (!postDoc.exists) {
+        resolve(c.json({ error: 'Post not found' }, 404));
+        return;
+      }
+      
+      // Create the new comment object following the Comment interface
+      const newComment: Comment = {
+        id: uuidv4(),
+        author: userId,
+        content: content,
+        timeAgo: "just now",
+        likes: 0,
+        dislikes: 0,
+      };
+      
+      // Update the post document: add the new comment to the comments array and update the timestamp
+      await postRef.update({
+        comments: admin.firestore.FieldValue.arrayUnion(newComment),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      
+      resolve(c.json({ message: 'Comment added successfully' }, 200));
+      
+    } catch (error: any) {
+      console.error('Error adding comment:', error);
+      resolve(c.json({ error: error.message || 'Error adding comment' }, 500));
+    }
+  });
+};
+
+export const getCommunityPost = async (c: Context): Promise<Response> => {
+  return new Promise<Response>(async (resolve) => {
+    try {
+      // Get postId from query parameter
+      const postId = c.req.query('postId');
+
+      if (!postId) {
+        resolve(c.json({ error: 'postId is required as a query parameter' }, 400));
+        return;
+      }
+
+      // Reference the post document
+      const postRef = admin.firestore().collection('communityPosts').doc(postId);
+      const postDoc = await postRef.get();
+
+      if (!postDoc.exists) {
+        resolve(c.json({ error: 'Post not found' }, 404));
+        return;
+      }
+
+      // Map the post data
+      const data = postDoc.data() as CommunityPost;
+      const post: CommunityPost = {
+        communityId: data.communityId,
+        id: postDoc.id,
+        title: data.title,
+        content: data.content,
+        author: data.author,
+        timeAgo: data.timeAgo,
+        likes: data.likes,
+        dislikes: data.dislikes,
+        image: data.image,
+        comments: data.comments || [],
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      };
+
+      resolve(c.json({
+        message: 'Post retrieved successfully',
+        post,
+      }, 200));
+    } catch (error: any) {
+      console.error('Error retrieving post:', error);
+      resolve(c.json({ error: error.message || 'Error retrieving post' }, 500));
+    }
+  });
+};
+
+
   
   
   // Interfaces
