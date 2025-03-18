@@ -1,4 +1,4 @@
-import type { Context } from 'hono'; // Assuming you're using Hono framework
+import type { Context } from 'hono';
 import admin from '../firebaseAdmin.js';
 import { v4 as uuidv4 } from 'uuid';
 import Busboy from 'busboy';
