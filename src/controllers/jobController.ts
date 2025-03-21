@@ -155,6 +155,32 @@ export const createJobPost = async (c: Context): Promise<Response> => {
       return c.json({ error: error.message || 'Error fetching job posts' }, 500);
     }
   };
+
+  export const fetchJobPostById = async (c: Context): Promise<Response> => {
+    try {
+      // Retrieve the job post ID from the route parameters
+      const jobPostId = c.req.param('jobId');
+      if (!jobPostId) {
+        return c.json({ error: "Job post id is required" }, 400);
+      }
+  
+      // Get a reference to the specific job post document
+      const docRef = admin.firestore().collection('jobPosts').doc(jobPostId);
+      const docSnapshot = await docRef.get();
+  
+      // Check if the document exists
+      if (!docSnapshot.exists) {
+        return c.json({ error: "Job post not found" }, 404);
+      }
+  
+      // Return the job post data
+      return c.json({ jobPost: docSnapshot.data() }, 200);
+    } catch (error: any) {
+      console.error('Error fetching job post:', error);
+      return c.json({ error: error.message || 'Error fetching job post' }, 500);
+    }
+  };
+  
   
   
 
